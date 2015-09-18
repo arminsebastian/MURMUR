@@ -17,6 +17,7 @@ module.exports = React.createClass({
       url: 'voteComment' ,
       contentType: 'application/json',
       data: JSON.stringify({
+        "roomname": this.props.roomname,
         "messageId": this.props.messageId,
         "commentId": this.props.commentId,
         "vote": true,
@@ -33,6 +34,7 @@ module.exports = React.createClass({
       url: 'voteComment' ,
       contentType: 'application/json',
       data: JSON.stringify({
+        "roomname": this.props.roomname,
         "messageId": this.props.messageId,
         "commentId": this.props.commentId,
         "vote": false,

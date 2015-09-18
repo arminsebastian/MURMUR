@@ -39,14 +39,14 @@ var tokenFactory = exports.tokenFactory = function(optionsObject){
 
 var Firebase = require('firebase');
 var myDataRef = new Firebase('https://donkey.firebaseio.com/');
-var freshPost = myDataRef.child('Fresh Post');
+// var freshPost = myDataRef.child('test2');
 
 myDataRef.authWithCustomToken(tokenFactory(), function(error, authData) {
   if (error) {
-    console.log(authData);
-    console.log("Login Failed!", error);
+    // console.log(authData);
+    // console.log("Login Failed!", error);
   } else {
-    console.log("Login Succeeded!", authData);
-    console.log("Login Succeeded!", authData.token);
+    // console.log("Login Succeeded!", authData);
+    // console.log("Login Succeeded!", authData.token);
   }
 });

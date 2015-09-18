@@ -25,6 +25,7 @@ var Message = React.createClass({
       url: 'vote' ,
       contentType: 'application/json',
       data: JSON.stringify({
+        "roomname": this.props.roomname,
         "messageId": messageId,
         "vote": true,
         "token": this.props.token
@@ -36,13 +37,14 @@ var Message = React.createClass({
 
   // Post downvote data to Server
   downVote: function(event){
-
+    console.log("rooooooooooœm",this.props.roomname);
     var messageId = $(event.target).closest('.jumbotron').attr('id');
     $.ajax({
       type: 'POST',
       url: 'vote' ,
       contentType: 'application/json',
       data: JSON.stringify({
+        "roomname": this.props.roomname,
         "messageId": messageId,
         "vote": false,
         "token": this.props.token
@@ -60,6 +62,7 @@ var Message = React.createClass({
       url: 'favorite' ,
       contentType: 'application/json',
       data: JSON.stringify({
+        "roomname": this.props.roomname,
         "messageId": messageId,
         "token": this.props.token
       }),
@@ -85,6 +88,7 @@ var Message = React.createClass({
         var comments = this.props.comments[commentKey];
         commentRows.push(
           <CommentMessage
+            roomname={ this.props.roomname }
             key={ comments.commentId }
             token={ this.props.token }
             auth={ this.props.auth }
@@ -171,7 +175,7 @@ var Message = React.createClass({
           </div>
 
           <div style={ this.state.commentsView ? this.styles.commentsView : this.styles.hidden }>
-            <CommentBox messageId={ this.props.messageId } token={ this.props.token } auth={ this.props.auth }/>
+            <CommentBox roomname={ this.props.roomname } messageId={ this.props.messageId } token={ this.props.token } auth={ this.props.auth }/>
             { commentRowsSortedOptions['recent'] }
           </div>
 

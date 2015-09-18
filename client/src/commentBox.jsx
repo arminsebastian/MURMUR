@@ -19,11 +19,13 @@ var commentBox = React.createClass({
   // Post a message when "Submit" button is clicked
   handleClick: function(event){
     event.preventDefault();
+    console.log("roomname", this.props.roomname);
     $.ajax({
       type: 'POST',
       url: 'comment',
       contentType: 'application/json',
       data: JSON.stringify({
+        "roomname": this.props.roomname,
         "comment": this.state.comment,
         'messageId': this.props.messageId,
         "token": this.props.token,
@@ -44,6 +46,7 @@ var commentBox = React.createClass({
         url: 'comment',
         contentType: 'application/json',
         data: JSON.stringify({
+          "roomname": this.props.roomname,
           "comment": this.state.comment,
           'messageId': this.props.messageId,
           "token": this.props.token,

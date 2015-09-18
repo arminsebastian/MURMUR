@@ -3,7 +3,7 @@ var myDataRef = new Firebase('https://donkey.firebaseio.com/');
 var tokenFactory = require('./firebaseTokenFactory').tokenFactory;
 var Cookies = require('cookies');
 
-var freshPost = myDataRef.child('Fresh Post');
+// var freshPost = myDataRef.child('test2');
 var users = myDataRef.child('users');
 
 var setTokenCookie = exports.setTokenCookie = function (request, response, token){
@@ -22,7 +22,8 @@ var setTokenCookie = exports.setTokenCookie = function (request, response, token
 }
 
 var insertPost = exports.insertPost = function(request, response, dataRef){
-  var dataRef = dataRef || freshPost;
+  var dataRef = myDataRef.child(request.body.roomname);
+  // var dataRef = dataRef || freshPost;
   var token = request.cookies.get('token') || request.body.token; // body.token is for Slack
   var newToken;
   var newJwtClaims;
@@ -36,6 +37,8 @@ var insertPost = exports.insertPost = function(request, response, dataRef){
         var postMessage = request.body.message;
         var post = dataRef.push();    //ID generator
         var postId = post.key();      //Grabs the ID
+        console.log("message", request.body.message); 
+        console.log("ROOOOOOOMNAME", request.body.roomname);
         
         post.set({                    //Pushes the post data into the database
           uid: authData.auth.uid,
@@ -64,7 +67,8 @@ var insertPost = exports.insertPost = function(request, response, dataRef){
 }
 
 var votePost = exports.votePost = function(request, response, dataRef){
-  var dataRef = dataRef || freshPost;
+  var dataRef = myDataRef.child(request.body.roomname);
+  // var dataRef = dataRef || freshPost;
   var token = request.cookies.get('token');
   var newToken;
   var newJwtClaims;
@@ -76,11 +80,11 @@ var votePost = exports.votePost = function(request, response, dataRef){
         console.log("Login Failed!", error);
       } 
       else {
-        var dataRef = dataRef || freshPost;
+        // var dataRef = dataRef || freshPost;
         var messageId = request.body.messageId;
         var voteRequest = request.body.vote;
 
-        var fbRef = freshPost.parent()
+        var fbRef = dataRef.parent()
         var votedIdRef = fbRef.child('sessions/' + authData.auth.uid + '/voted/' + messageId);
         
         var vote = dataRef.child(messageId + '/votes');
@@ -134,7 +138,8 @@ var votePost = exports.votePost = function(request, response, dataRef){
 }
 
 var comment = exports.comment = function(request, response, dataRef){
-  var dataRef = dataRef || freshPost;
+  // var dataRef = dataRef || freshPost;
+  var dataRef = myDataRef.child(request.body.roomname);
   var token = request.body.token;
 
   dataRef.authWithCustomToken(token, function(error, authData) {
@@ -173,7 +178,8 @@ var comment = exports.comment = function(request, response, dataRef){
 }
 
 var voteComment = exports.voteComment = function(request, response, dataRef){
-  var dataRef = dataRef || freshPost;
+  // var dataRef = dataRef || freshPost;
+  var dataRef = myDataRef.child(request.body.roomname);
   var token = request.cookies.get('token');
   var newToken;
   var newJwtClaims;
@@ -188,7 +194,7 @@ var voteComment = exports.voteComment = function(request, response, dataRef){
         var commentId = request.body.commentId;
         var voteRequest = request.body.vote;
         
-        var fbRef = freshPost.parent();
+        var fbRef = dataRef.parent();
         var votedIdRef = fbRef.child('sessions/' + authData.auth.uid + '/voted/' + commentId);
         
         var vote = dataRef.child(messageId + '/comments/' + commentId + '/votes');
@@ -239,7 +245,8 @@ var voteComment = exports.voteComment = function(request, response, dataRef){
 }
 
 var toggleFavorite = exports.toggleFavorite = function(request, response, dataRef){
-  var dataRef = dataRef || freshPost;
+  // var dataRef = dataRef || freshPost;
+  var dataRef = myDataRef.child(request.body.roomname);
   var token = request.cookies.get('token');
   var newToken;
   var newJwtClaims;
@@ -272,6 +279,27 @@ var toggleFavorite = exports.toggleFavorite = function(request, response, dataRe
       }
     });
   }
+}
+
+var checkroom = exports.checkroom = function(request, response, callback) {
+  var dataRef = myDataRef.child(request.body.roomname);
+  dataRef.once('value', function(dataSnapshot) {
+    console.log(dataSnapshot.val());
+    if (dataSnapshot.val() === null) {
+      callback(false);
+    } else {
+      callback(true);
+    }
+  
+  // handle read data.
+  });
+}
+
+var createRoom = exports.createRoom = function(request, response, roomname) {
+  var dataRef = myDataRef.child(roomname);
+  dataRef.set({roomname: request.body.roomname,
+               email: request.body.email});
+  response.send(roomname)
 }
 
 var signin = exports.signin = function(request, response){

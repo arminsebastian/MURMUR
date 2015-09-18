@@ -12,6 +12,7 @@ var ViewAllMessages = React.createClass({
       var message = messagesObject[messageKey];
       messageRows.push(
         <Message
+          roomname={ this.props.roomname }
           uid={ message.uid }
           sessions={ this.props.sessions }
           messageId={ message.messageId }
