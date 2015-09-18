@@ -1,18 +1,12 @@
-  var Firebase = require('firebase');
+var Firebase = require('firebase');
 var myDataRef = new Firebase('https://donkey.firebaseio.com/');
 
 // Create New Users
-module.exports.createUser = function(user){
+module.exports.createUser = function(user, cb){
   myDataRef.createUser({
     "email": user.email,
     "password": user.password
-  }, function(error, userData) {
-    if (error) {
-      console.log("Error creating user:", error);
-    } else {
-      console.log("Successfully created user account with uid:", userData.uid);
-    }
-  });
+  }, cb);
 };
 
 // Log user in
