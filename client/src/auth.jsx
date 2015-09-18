@@ -1,96 +1,125 @@
-var React = require('react');
-// var url = 'http://0.0.0.0:3000/';
+var express = require('express');
+var firebase = require('./firebase');
+var tokenFactory = require('./firebaseTokenFactory').tokenFactory;
+var app = express();
+var bodyParser = require('body-parser');
+var Cookies = require("cookies");
+var serverUrl = '0.0.0.0';
+var fs = require('fs');
+var auth = require('./auth');
 
-var AuthBox = React.createClass({
-  getInitialState: function() {
-    return {
-      email: '',
-      password: '',
-      url: 'signin',
-      button: 'create an account'
-    };
-  },
+app.use('/', express.static('client'));
+app.use(bodyParser.json());
 
-  handleChange1: function(event){  
-    this.setState({
-      email: event.target.value
-    });
-  },
+app.use(Cookies.express());
 
-  handleChange2: function(event){
-    this.setState({
-      password: event.target.value
-    });
-  },
-
-  enterPressed: function(event) {
-    if(event.keyCode === 13) {
-      event.preventDefault();
-      $.ajax({ // Post message
-        type: 'POST',
-        url: '/' + this.state.url,
-        contentType: 'application/json',
-        data: JSON.stringify({ "email": this.state.email, "password": this.state.password }),
-        success: function(d){
-          console.log('POST successful: ', d);
-        }
-      });
-      this.setState({ email: '', password: ''}); // Clear input box
-      console.log(this.state);
-      console.log(this.state.url);
-    }
-  },
-
-  handleClick: function(event){
-    event.preventDefault();
-    $.ajax({ // Post message
-      type: 'POST',
-      url: '/' + this.state.url,
-      contentType: 'application/json',
-      data: JSON.stringify({ "email": this.state.email, "password": this.state.password }),
-      success: function(d){
-        console.log('POST successful: ', d);
-      }
-    });
-    this.setState({ email: '', password: ''}); // Clear input box
-    console.log(this.state);
-  },
-
-  toggleAuth: function(event){
-    event.preventDefault();
-    // console.log("running")
-    if(this.state.url==="signin") {
-      this.setState({
-        button: "already have an account?",
-        url: "signup"
-      });
-    } else {
-      this.setState({
-        button: "create an account",
-        url: "signin"
-      });
-    }
-    console.log(this.state.button, this.state.url)
-  },
-
-  render: function() {
-    return (
-      <div className="input-group" style = {{padding: '15px'}}>
-        <h1>{this.state.url}</h1>
-        <input value={this.state.email} onChange={this.handleChange1} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
-        <input value={this.state.password} onChange={this.handleChange2} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter password" />
-        <span className="input-group-btn">
-          <button onClick={this.handleClick} className="btn btn-success" type="button"> Submit </button>
-        </span>
-        <span className="input-group-btn">
-          <input type="button" onClick={this.toggleAuth} className="btn btn-success" value={this.state.button} />
-        </span>        
-      </div>
-    )
-  }
+app.post('/', function(request, response){ //request.body.url = 'newPost'
+  firebase.insertPost(request, response);
 });
 
-module.exports = AuthBox;
+app.get('/noToken', function(request, response){
+  fs.readFile('client/src/invite.html', function(err, data){
+    if(err){
+      console.log('error reading invite.html');
+      console.log(process.cwd());
+    }else{
+      response.setHeader('Content-Type', 'text/html');
+      response.send(data);
+    }
+  })
+})
 
-// var element = React.createElement(AuthBox);
-// React.render(element, document.querySelector('.container'));
+app.post('/checkroom', function(request, response) {
+  firebase.checkroom(request, response, function(exists) {
+    console.log('page exists: ', exists);
+    response.send(exists);
+  })
+})
+
+app.post('/noToken', function(request, response){
+  if(request.cookies.get('token')){
+    console.log('already have a token')
+    request.method = 'get';
+    // response.redirect('/murmur');
+    response.send({redirect: '/murmur'});
+  } else if(request.body.inviteCode === 'mks22'){                   // set Token Cookie
+    response.cookies.set('token', tokenFactory(), {
+      maxAge: 2628000000,   // expires in 1 month
+      httpOnly: false,    // more secure but then can't access from client
+    })
+    request.method = 'get';
+    response.send({redirect: '/murmur'});
+  } else {
+    response.send('Correct Invitation Code Required.')
+  }
+})
+
+app.get('/', function(request, response){
+  response.redirect('/murmur');
+})
+
+app.post('/signin', function(request, response){  
+  var user = request.body;
+
+  console.log("logging in user: ", user);
+  auth.login(user, function authHandler(error, authData) {
+    if (error) {
+      console.log("Login Failed", error);
+      response.send({"loginSuccessful": false});
+    } else {
+      console.log("Authenticated successfully with payload:", authData);
+      response.send({"loginSuccessful": true});
+    }
+  });
+})
+
+app.post('/create', function(request, response){
+  var roomnameLength = 8;
+  var roomname = Math.random().toString(36).replace(/[^a-z0-9]+/g, '').substr(1, roomnameLength);
+  firebase.createRoom(request, response, roomname);
+})
+
+app.post('/signup', function(request, response){
+  var user = request.body;
+
+  console.log("creating user: ", user);
+  auth.createUser(user, function(error, userData) {
+    if (error) {
+      console.log("Error creating user:", error);
+      response.send({"loginSuccessful": false});
+    } else {
+      console.log("Successfully created user account with uid:", userData.uid);
+      response.send({"loginSuccessful": true});
+    }
+  });
+})
+
+app.get('/user/*', function(request, response){
+  fs.readFile('client/src/home.html', function(err,data){
+    if(err){
+      console.log('error reading home.html');
+      console.log(process.cwd());
+    }else{
+      response.setHeader('Content-Type', 'text/html');
+      response.send(data);
+    }
+  })
+})
+
+app.post('/comment', function(request, response){ //request.body.url = 'newPost'
+  firebase.comment(request, response);
+})
+
+app.post('/vote', function(request,response){ //request.body.url = 'newPost'
+  firebase.votePost(request, response);
+})
+
+app.post('/voteComment', function(request,response){ //request.body.url = 'newPost'
+  firebase.voteComment(request, response);
+})
+
+app.post('/favorite', function(request,response){ //request.body.url = 'newPost'
+  firebase.toggleFavorite(request, response);
+})
+
+app.listen(3000, serverUrl);
