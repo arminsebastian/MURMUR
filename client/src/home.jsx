@@ -155,12 +155,18 @@ var Homebox = React.createClass({
     console.log(this.state.button, this.state.url)
   },
 
+  styleAuth: {
+    padding: '15px',
+    margin-top: '200px',
+    background-color: 'black'
+  },
+
   Auth: function(){
     return (
-    <div className="input-group" style = {{padding: '15px'}}>
+    <div className="input-group" style = {{ padding: '15px' }}>
       <h1>{this.state.url}</h1>
       <input value={this.state.email} onChange={this.handleEmailChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
-      <input value={this.state.password} onChange={this.handlePasswordChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter password" />
+      <input value={this.state.password} onChange={this.handlePasswordChange} onKeyDown={this.enterPressed} type="password" className="form-control"  placeholder="Enter password" />
       <span className="input-group-btn">
         <button onClick={this.handleClick2} className="btn btn-success" type="button"> Submit </button>
       </span>
