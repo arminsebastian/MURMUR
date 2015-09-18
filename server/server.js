@@ -73,8 +73,10 @@ app.post('/signin', function(request, response){
   });
 })
 
-app.post('/createRoom', function(request, response){
-
+app.post('/create', function(request, response){
+  var roomnameLength = 8;
+  var roomname = Math.random().toString(36).replace(/[^a-z0-9]+/g, '').substr(1, roomnameLength);
+  firebase.createRoom(request, response, roomname);
 })
 
 app.post('/signup', function(request, response){

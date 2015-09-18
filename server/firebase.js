@@ -295,6 +295,13 @@ var checkroom = exports.checkroom = function(request, response, callback) {
   });
 }
 
+var createRoom = exports.createRoom = function(request, response, roomname) {
+  var dataRef = myDataRef.child(roomname);
+  dataRef.set({roomname: request.body.roomname,
+               email: request.body.email});
+  response.send(roomname)
+}
+
 var signin = exports.signin = function(request, response){
 
 }
