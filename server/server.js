@@ -81,7 +81,7 @@ app.post('/create', function(request, response){
 
 app.post('/signup', function(request, response){
   var user = request.body;
-
+  
   console.log("creating user: ", user);
   auth.createUser(user, function(error, userData) {
     if (error) {
