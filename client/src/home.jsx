@@ -83,7 +83,7 @@ var Homebox = React.createClass({
     }
   },
 
-  handleClick: function(event){
+  handleClickCreate: function(event){
     var that = this;
     event.preventDefault();
     $.ajax({ // Post message
@@ -106,17 +106,17 @@ var Homebox = React.createClass({
 
   Create: function() { 
     return (
-      <div className="input-group" style = {{padding: '15px'}}>
+      <div className="input-group" style = {{padding: '15px', 'margin-top': '100px'}}>
         <h1>create a room</h1>
         <input value={this.state.roomname} onChange={this.handleChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter your room's name" />
-        <span className="input-group-btn">
-          <button onClick={this.handleClick} className="btn btn-success" type="button"> Submit </button>
+        <span className="input-group-btn" >
+          <button onClick={this.handleClickCreate} className="btn btn-success" type="button"> Submit </button>
         </span>      
       </div>
       )
   },
 
-  handleClick2: function(event){
+  handleClickAuth: function(event){
     event.preventDefault();
     var that = this;
     $.ajax({ // Post message
@@ -155,25 +155,19 @@ var Homebox = React.createClass({
     console.log(this.state.button, this.state.url)
   },
 
-  styleAuth: {
-    padding: '15px',
-    margin-top: '200px',
-    background-color: 'black'
-  },
-
   Auth: function(){
     return (
-    <div className="input-group" style = {{ padding: '15px' }}>
-      <h1>{this.state.url}</h1>
-      <input value={this.state.email} onChange={this.handleEmailChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
-      <input value={this.state.password} onChange={this.handlePasswordChange} onKeyDown={this.enterPressed} type="password" className="form-control"  placeholder="Enter password" />
-      <span className="input-group-btn">
-        <button onClick={this.handleClick2} className="btn btn-success" type="button"> Submit </button>
-      </span>
-      <span className="input-group-btn">
-        <input type="button" onClick={this.toggleAuth} className="btn btn-success" value={this.state.button} />
-      </span>        
-    </div>
+      <div className="input-group" style={{ padding: '15px', 'margin-top': '100px' }} >
+        <h1>{this.state.url}</h1>
+        <input value={this.state.email} onChange={this.handleEmailChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
+        <input value={this.state.password} onChange={this.handlePasswordChange} onKeyDown={this.enterPressed} type="password" className="form-control"  placeholder="Enter password" />
+        <span className="input-group-btn">
+          <button onClick={this.handleClickAuth} className="btn btn-success" type="button"> Submit </button>
+        </span>
+        <span className="input-group-btn">
+          <input type="button" onClick={this.toggleAuth} className="btn btn-success" value={this.state.button} />
+        </span>        
+      </div>
     )
   },
 
