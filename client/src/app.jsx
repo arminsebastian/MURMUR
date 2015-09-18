@@ -91,16 +91,20 @@ var mainView = React.createClass({
       })
       this.messageRef = this.firebaseRef.child(roomname);
       this.messageRef.on('value', function(dataSnapshot){
-        this.messages.push(dataSnapshot.val());
+        // this.messages.push(dataSnapshot.val());
+        var temp = dataSnapshot.val();
+        delete temp['email']
+        delete temp['roomname']
+        console.log('this is datasnapshotval:',temp)
         this.setState({
-          messages: dataSnapshot.val()
+          messages: temp
         });
         console.log('inFreshPost', dataSnapshot.val())
       }.bind(this));
 
       this.sessionsRef = this.firebaseRef.child('sessions');
       this.sessionsRef.on('value', function(dataSnapshot){
-        this.messages.push(dataSnapshot.val());
+        // this.messages.push(dataSnapshot.val());
         this.setState({
           sessions: dataSnapshot.val()
         });

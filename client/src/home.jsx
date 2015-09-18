@@ -1,8 +1,10 @@
 var React = require('react');
+var ReactRouter = require('react-router');
 // var url = 'http://0.0.0.0:3000/';
 
 
 var Homebox = React.createClass({
+  mixins: [ReactRouter.Navigation],
   getInitialState: function() {
     return {
       loggedIn: false,
@@ -10,8 +12,7 @@ var Homebox = React.createClass({
       email: '',
       password: '',
       url: 'signin',
-      button: 'create an account',
-      EMAIL: ''
+      button: 'create an account'
     };
   },
 
@@ -21,19 +22,20 @@ var Homebox = React.createClass({
     })
   },
 
-  handleChange2: function(event){
+  handlePasswordChange: function(event){
     this.setState({
       password: event.target.value
     })
   },
 
-  handleChange3: function(event){
+  handleEmailChange: function(event){
     this.setState({
       email: event.target.value
     })
   },
 
   enterPressed: function(event) {
+    var self = this;
     if(event.keyCode === 13 && this.state.loggedIn) {
       var that = this;
       event.preventDefault();
@@ -43,11 +45,12 @@ var Homebox = React.createClass({
         contentType: 'application/json',
         data: JSON.stringify({
           roomname: this.state.roomname,
-          email: this.state.EMAIL
+          email: this.state.email
         }),
         success: function(d){
           console.log('POST successful: ', d);
-          window.location.pathname = '/r/' + d;
+          // window.location.pathname = '/r/' + d;
+          self.transitionTo('room', {roomname: d});
         }
       });
       this.setState({ roomname: '' }); // Clear input box
@@ -65,12 +68,12 @@ var Homebox = React.createClass({
         contentType: 'application/json',
         data: JSON.stringify({ "email": this.state.email, "password": this.state.password }),
         success: function(d){
-          console.log('POST successful: ', d.loginSuccessful);
+          console.log('POST successful: ', d);
           if (d.loginSuccessful) {
             that.setState({
-              loggedIn : true,
-              EMAIL : that.state.email
+              loggedIn : true
             })
+            console.log('this is email right now:', that.state.email)
           }
         }
       });
@@ -89,11 +92,12 @@ var Homebox = React.createClass({
       contentType: 'application/json',
       data: JSON.stringify({
         roomname: this.state.roomname,
-        email: this.state.EMAIL
+        email: this.state.email
       }),
       success: function(d){
         console.log('POST successful: ', d);
-        window.location.pathname = '/r/' + d;
+        self.transitionTo('room', {roomname: d});
+        // window.location.pathname = '/r/' + d;
       }
     });
     this.setState({ roomname: '' }); // Clear input box
@@ -124,14 +128,13 @@ var Homebox = React.createClass({
         console.log('POST successful: ', d);
         if (d.loginSuccessful) {
           that.setState({
-            loggedIn : true,
-            EMAIL : that.state.email
+            loggedIn : true
           })
           console.log(that.state.loggedIn)
         }
       }
     });
-    this.setState({ email: '', password: ''}); // Clear input box
+    // this.setState({ email: '', password: ''}); // Clear input box
     console.log(this.state);
   },
 
@@ -156,8 +159,8 @@ var Homebox = React.createClass({
     return (
     <div className="input-group" style = {{padding: '15px'}}>
       <h1>{this.state.url}</h1>
-      <input value={this.state.email} onChange={this.handleChange3} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
-      <input value={this.state.password} onChange={this.handleChange2} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter password" />
+      <input value={this.state.email} onChange={this.handleEmailChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
+      <input value={this.state.password} onChange={this.handlePasswordChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter password" />
       <span className="input-group-btn">
         <button onClick={this.handleClick2} className="btn btn-success" type="button"> Submit </button>
       </span>
