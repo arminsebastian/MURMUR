@@ -38,6 +38,7 @@ var App = React.createClass({
 });
 
 var mainView = React.createClass({
+  mixins: [ReactRouter.Navigation],
   messages: [],
   getInitialState: function(){
     return {
@@ -52,6 +53,7 @@ var mainView = React.createClass({
 
   // Retrieve the messages data from Firebase
   componentWillMount: function(){
+    var self = this;
     var roomname = this.state.roomname;
     console.log('ROOM',this.state.roomname)
     if(token){
@@ -62,11 +64,28 @@ var mainView = React.createClass({
           console.log('Problem connecting to Database');
           console.log(error);
         } else{
-          console.log('Connected to Databse')
-          console.log(authData);
-          context.setState({
-            token: authData.token,
-            auth: authData.auth,
+          $.ajax({
+            type: "POST",
+            url: "checkroom",
+            contentType: "application/json",
+            data: JSON.stringify({roomname: roomname}),
+            success: function(response){
+              console.log(response);
+              if (response) {
+                console.log('Connected to Database')
+                console.log(authData);
+                context.setState({
+                  token: authData.token,
+                  auth: authData.auth,
+                });
+              } else {
+                console.log('room does not exists');
+                // console.log(Router);
+                self.transitionTo('index');
+                console.log(self);
+              }
+              
+            }
           });
         }
       })
@@ -140,7 +159,7 @@ var mainView = React.createClass({
 
 var routes = (
   React.createElement(Route, {name: 'app', path : '/', handler: App},
-    React.createElement(DefaultRoute, {name: "index", handler: Auth}),
+    React.createElement(DefaultRoute, {name: "index", handler: Home}),
     React.createElement(Route, {name: "room", path: "r/:roomname", handler: mainView})
   )
 );
