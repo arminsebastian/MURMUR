@@ -15,7 +15,8 @@ var Homebox = React.createClass({
       email: '',
       password: '',
       url: 'signin',
-      button: 'create an account'
+      button: 'create an account',
+      emailStore: ''
     };
   },
 
@@ -51,19 +52,18 @@ var Homebox = React.createClass({
   submitRoom: function(event){
     var that = this;
     event.preventDefault();
-    console.log('* * * email * * * :', this.emailPersist)
     $.ajax({ // Post message
       type: 'POST',
       url: '/create',
       contentType: 'application/json',
       data: JSON.stringify({
         roomname: this.state.roomname,
-        email: this.emailPersist
+        email: this.state.emailStore
       }),
       success: function(d){
-        console.log('CREATE response: ', d);
+        console.log("CREATE's response: ", d);
         // window.location.pathname = '/r/' + d;
-        // self.transitionTo('room', {roomname: d});
+        that.transitionTo('room', {roomname: d});
       }
     });
     this.setState({ roomname: '' }); // Clear input box
@@ -80,7 +80,7 @@ var Homebox = React.createClass({
           <button onClick={this.submitRoom} className="btn btn-success" type="button"> Submit </button>
         </span>      
       </div>
-      )
+    )
   },
 
   submitAuth: function(event){
@@ -94,15 +94,13 @@ var Homebox = React.createClass({
       success: function(d){
         console.log('POST successful: ', d);
         if (d.loginSuccessful) {
-          that.emailPersist = that.state.email;
           that.setState({
-            loggedIn : true
+            loggedIn : true,
+            emailStore : that.state.email
           })
-          console.log('* * Does it persist? * * :', that.emailPersist)
         }
       }
     });
-    this.setState({ email: '', password: ''});
     console.log(this.state);
   },
 
