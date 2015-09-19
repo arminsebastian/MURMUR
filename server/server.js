@@ -7,6 +7,7 @@ var Cookies = require("cookies");
 var serverUrl = '0.0.0.0';
 var fs = require('fs');
 var auth = require('./auth');
+var email = require('./email-api');
 
 app.use('/', express.static('client'));
 app.use(bodyParser.json());
@@ -31,7 +32,7 @@ app.post('/checkroom', function(request, response) {
   })
 })
 
-app.post('/signin', function(request, response){  
+app.post('/signin', function(request, response){
   var user = request.body;
   console.log("logging in user: ", user);
   auth.login(user, function authHandler(error, authData) {
@@ -62,6 +63,7 @@ app.post('/signup', function(request, response){
       response.send({"loginSuccessful": false});
     } else {
       console.log("Successfully created user account with uid:", userData.uid);
+      email.sendgrid();
       response.send({"loginSuccessful": true});
     }
   });

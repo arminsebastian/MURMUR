@@ -23,6 +23,7 @@
     "react-sanfona": "0.0.2",
     "react-style": "^0.5.5",
     "reactify": "^1.1.1",
+    "sendgrid": "^1.9.2",
     "uuid": "^2.0.1",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.4.0"
