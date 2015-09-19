@@ -18,10 +18,13 @@ app.post('/', function(request, response){ //request.body.url = 'newPost'
 });
 
 app.post('/checkroom', function(request, response) {
-
+  console.log('in here')
   firebase.checkroom(request, response, function(exists) {
     if (exists) {
-      response.cookies.set('token', tokenFactory());
+      var token = response.cookies.get('token');
+      if (token) {
+        response.cookies.set('token', tokenFactory());
+      }
     } else {
       response.send({ redirect: '/' });
     }
@@ -44,6 +47,7 @@ app.post('/signin', function(request, response){
 
 app.post('/create', function(request, response){
   var roomnameLength = 8;
+  console.log('* * * body * * * :', request.body)
   var roomname = Math.random().toString(36).replace(/[^a-z0-9]+/g, '').substr(1, roomnameLength);
   firebase.createRoom(request, response, roomname);
 })
