@@ -5,6 +5,9 @@ var ReactRouter = require('react-router');
 
 var Homebox = React.createClass({
   mixins: [ReactRouter.Navigation],
+
+  emailPersist: '',
+
   getInitialState: function() {
     return {
       loggedIn: false,
@@ -12,11 +15,12 @@ var Homebox = React.createClass({
       email: '',
       password: '',
       url: 'signin',
-      button: 'create an account'
+      button: 'create an account',
+      emailStore: ''
     };
   },
 
-  handleChange: function(event) {
+  handleRoomnameChange: function(event) {
     this.setState({
       roomname: event.target.value
     })
@@ -37,53 +41,15 @@ var Homebox = React.createClass({
   enterPressed: function(event) {
     var self = this;
     if(event.keyCode === 13 && this.state.loggedIn) {
-      var that = this;
-      event.preventDefault();
-      $.ajax({ // Post message
-        type: 'POST',
-        url: '/create',
-        contentType: 'application/json',
-        data: JSON.stringify({
-          roomname: this.state.roomname,
-          email: this.state.email
-        }),
-        success: function(d){
-          console.log('POST successful: ', d);
-          // window.location.pathname = '/r/' + d;
-          self.transitionTo('room', {roomname: d});
-        }
-      });
-      this.setState({ roomname: '' }); // Clear input box
-      console.log(this.state);
-      console.log(this.state.url);
+      this.submitRoom(event);
     }
 
-
     if(event.keyCode === 13 && !this.state.loggedIn) {
-      var that = this;
-      event.preventDefault();
-      $.ajax({ // Post message
-        type: 'POST',
-        url: '/' + this.state.url,
-        contentType: 'application/json',
-        data: JSON.stringify({ "email": this.state.email, "password": this.state.password }),
-        success: function(d){
-          console.log('POST successful: ', d);
-          if (d.loginSuccessful) {
-            that.setState({
-              loggedIn : true
-            })
-            console.log('this is email right now:', that.state.email)
-          }
-        }
-      });
-      this.setState({ email: '', password: ''}); // Clear input box
-      console.log(this.state);
-      console.log(this.state.url);
+      this.submitAuth(event);
     }
   },
 
-  handleClickCreate: function(event){
+  submitRoom: function(event){
     var that = this;
     event.preventDefault();
     $.ajax({ // Post message
@@ -92,31 +58,32 @@ var Homebox = React.createClass({
       contentType: 'application/json',
       data: JSON.stringify({
         roomname: this.state.roomname,
-        email: this.state.email
+        email: this.state.emailStore
       }),
       success: function(d){
-        console.log('POST successful: ', d);
-        self.transitionTo('room', {roomname: d});
+        console.log("CREATE's response: ", d);
         // window.location.pathname = '/r/' + d;
+        that.transitionTo('room', {roomname: d});
       }
     });
     this.setState({ roomname: '' }); // Clear input box
-    console.log(this.state);
+    console.log('create:', this.state);
+    console.log(this.state.url);
   },
 
-  Create: function() { 
+  CreateRoom: function() { 
     return (
       <div className="input-group" style = {{padding: '15px', 'margin-top': '100px'}}>
         <h1>create a room</h1>
-        <input value={this.state.roomname} onChange={this.handleChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter your room's name" />
+        <input value={this.state.roomname} onChange={this.handleRoomnameChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter your room's name" />
         <span className="input-group-btn" >
-          <button onClick={this.handleClickCreate} className="btn btn-success" type="button"> Submit </button>
+          <button onClick={this.submitRoom} className="btn btn-success" type="button"> Submit </button>
         </span>      
       </div>
-      )
+    )
   },
 
-  handleClickAuth: function(event){
+  submitAuth: function(event){
     event.preventDefault();
     var that = this;
     $.ajax({ // Post message
@@ -128,19 +95,17 @@ var Homebox = React.createClass({
         console.log('POST successful: ', d);
         if (d.loginSuccessful) {
           that.setState({
-            loggedIn : true
+            loggedIn : true,
+            emailStore : that.state.email
           })
-          console.log(that.state.loggedIn)
         }
       }
     });
-    // this.setState({ email: '', password: ''}); // Clear input box
     console.log(this.state);
   },
 
   toggleAuth: function(event){
     event.preventDefault();
-    // console.log("running")
     if(this.state.url==="signin") {
       this.setState({
         button: "already have an account?",
@@ -152,7 +117,6 @@ var Homebox = React.createClass({
         url: "signin"
       });
     }
-    console.log(this.state.button, this.state.url)
   },
 
   Auth: function(){
@@ -162,7 +126,7 @@ var Homebox = React.createClass({
         <input value={this.state.email} onChange={this.handleEmailChange} onKeyDown={this.enterPressed} type="text" className="form-control"  placeholder="Enter e-mail address" />
         <input value={this.state.password} onChange={this.handlePasswordChange} onKeyDown={this.enterPressed} type="password" className="form-control"  placeholder="Enter password" />
         <span className="input-group-btn">
-          <button onClick={this.handleClickAuth} className="btn btn-success" type="button"> Submit </button>
+          <button onClick={this.submitAuth} className="btn btn-success" type="button"> Submit </button>
         </span>
         <span className="input-group-btn">
           <input type="button" onClick={this.toggleAuth} className="btn btn-success" value={this.state.button} />
@@ -175,7 +139,7 @@ var Homebox = React.createClass({
     return (
       <div>
         { !this.state.loggedIn ? this.Auth() : null }
-        { this.state.loggedIn ? this.Create() : null }
+        { this.state.loggedIn ? this.CreateRoom() : null }
       </div>
     )
   }

@@ -36,48 +36,8 @@ var checkAuth = module.exports.checkAuth = function(){
   return authData;
   if (authData) {
     return true;
-    // console.log("User " + authData.uid + " is logged in with " + authData.provider);
   } else {
     return false;
-    // console.log("User is logged out");
   }
 }
 
-
-// // register callback to be fired every time auth state changes
-// myDataRef.onAuth(function(authData) {
-//   // check if user is new
-//   var isNewUser = true;
-
-//   if (authData && isNewUser) {
-//     // save the user's profile into the database so we can list users,
-//     // use them in Security and Firebase Rules, and show profiles
-//     myDataRef.child("users").child(authData.uid).set({
-//       provider: authData.provider,
-//       name: getName(authData)
-//     });
-//   }
-// });
-
-// function getName(authData) {
-//   console.log(authData.provider);
-// return authData.
-//   //return authData.password.email.replace(/@.*/, '');
-//   // switch(authData.provider) {
-//   //    case 'password':
-//   //      return authData.password.email.replace(/@.*/, '');
-//   //    case 'twitter':
-//   //      return authData.twitter.displayName;
-//   //    case 'facebook':
-//   //      return authData.facebook.displayName;
-//   // }
-// }
-
-// // callback to log current auth state
-// function authDataCallback(authData) {
-//   if (authData) {
-//     console.log("User " + authData.uid + " is logged in with " + authData.provider);
-//   } else {
-//     console.log("User is logged out");
-//   }
-// };

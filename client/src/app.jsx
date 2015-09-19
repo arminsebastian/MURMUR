@@ -53,42 +53,63 @@ var mainView = React.createClass({
 
   // Retrieve the messages data from Firebase
   componentWillMount: function(){
-    var self = this;
     var roomname = this.state.roomname;
     console.log('ROOM',this.state.roomname)
-    if(token){
-      var context = this;
-      this.firebaseRef = new Firebase('https://donkey.firebaseio.com/');
-      this.firebaseRef.authWithCustomToken(token, function(error, authData){
-        if(error){
-          console.log('Problem connecting to Database');
-          console.log(error);
-        } else{
-          $.ajax({
-            type: "POST",
-            url: "checkroom",
-            contentType: "application/json",
-            data: JSON.stringify({roomname: roomname}),
-            success: function(response){
-              console.log(response);
-              if (response) {
-                console.log('Connected to Database')
-                console.log(authData);
-                context.setState({
-                  token: authData.token,
-                  auth: authData.auth,
-                });
-              } else {
-                console.log('room does not exists');
-                // console.log(Router);
-                self.transitionTo('index');
-                console.log(self);
-              }
-              
-            }
+    $.ajax({
+      type: "POST",
+      url: 'checkroom',
+      contentType: "application/json",
+      data: JSON.stringify({roomname: roomname}),
+      success: function(response){
+        console.log(response);
+        if (response) {
+          console.log('Connected to Database')
+          console.log(authData);
+          context.setState({
+            token: authData.token,
+            auth: authData.auth,
           });
+        } else {
+          console.log('room does not exists');
+          // console.log(Router);
+          context.transitionTo('index');
         }
-      })
+        
+      }
+    });
+    this.firebaseRef = new Firebase('https://donkey.firebaseio.com/');
+    // if(token){
+    //   var context = this;
+    // 
+    //   this.firebaseRef.authWithCustomToken(token, function(error, authData){
+    //     if(error){
+    //       console.log('Problem connecting to Database');
+    //       console.log(error);
+    //     } else{
+    //       $.ajax({
+    //         type: "POST",
+    //         url: '/checkroom',
+    //         contentType: "application/json",
+    //         data: JSON.stringify({roomname: roomname}),
+    //         success: function(response){
+    //           console.log(response);
+    //           if (response) {
+    //             console.log('Connected to Database')
+    //             console.log(authData);
+    //             context.setState({
+    //               token: authData.token,
+    //               auth: authData.auth,
+    //             });
+    //           } else {
+    //             console.log('room does not exists');
+    //             // console.log(Router);
+    //             context.transitionTo('index');
+    //           }
+              
+    //         }
+    //       });
+    //     }
+    //   })
       this.messageRef = this.firebaseRef.child(roomname);
       this.messageRef.on('value', function(dataSnapshot){
         // this.messages.push(dataSnapshot.val());
@@ -111,7 +132,7 @@ var mainView = React.createClass({
       // console.log('SESSSSSSSSSSSSSSSSionREF', this.sessionRef.toString())
         console.log('inSession', dataSnapshot.val())
       }.bind(this));
-    }
+    // }
   },
 
   handleSortRecent: function(){

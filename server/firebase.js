@@ -12,12 +12,8 @@ var setTokenCookie = exports.setTokenCookie = function (request, response, token
   if (token !== undefined) {
     newToken = token;
   }
-  
-  response.cookies.set('token', newToken, {
-    maxAge: 2628000000,   // expires in 1 month
-    httpOnly: false      // more secure but then can't access from client
-  });
 
+  response.cookies.set('token', newToken);
   response.sendStatus(201);
 }
 
@@ -290,7 +286,6 @@ var checkroom = exports.checkroom = function(request, response, callback) {
     } else {
       callback(true);
     }
-  
   // handle read data.
   });
 }
@@ -300,13 +295,4 @@ var createRoom = exports.createRoom = function(request, response, roomname) {
   dataRef.set({roomname: request.body.roomname,
                email: request.body.email});
   response.send(roomname)
-}
-
-var signin = exports.signin = function(request, response){
-
-}
-
-var signup = exports.signup = function(request, response){
-
-
 }

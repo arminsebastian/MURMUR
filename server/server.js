@@ -17,50 +17,22 @@ app.post('/', function(request, response){ //request.body.url = 'newPost'
   firebase.insertPost(request, response);
 });
 
-app.get('/noToken', function(request, response){
-  fs.readFile('client/src/invite.html', function(err, data){
-    if(err){
-      console.log('error reading invite.html');
-      console.log(process.cwd());
-    }else{
-      response.setHeader('Content-Type', 'text/html');
-      response.send(data);
+app.post('/checkroom', function(request, response) {
+  console.log('in here')
+  firebase.checkroom(request, response, function(exists) {
+    if (exists) {
+      var token = response.cookies.get('token');
+      if (token) {
+        response.cookies.set('token', tokenFactory());
+      }
+    } else {
+      response.send({ redirect: '/' });
     }
   })
 })
 
-app.post('/checkroom', function(request, response) {
-  firebase.checkroom(request, response, function(exists) {
-    console.log('page exists: ', exists);
-    response.send(exists);
-  })
-})
-
-app.post('/noToken', function(request, response){
-  if(request.cookies.get('token')){
-    console.log('already have a token')
-    request.method = 'get';
-    // response.redirect('/murmur');
-    response.send({redirect: '/murmur'});
-  } else if(request.body.inviteCode === 'mks22'){                   // set Token Cookie
-    response.cookies.set('token', tokenFactory(), {
-      maxAge: 2628000000,   // expires in 1 month
-      httpOnly: false,    // more secure but then can't access from client
-    })
-    request.method = 'get';
-    response.send({redirect: '/murmur'});
-  } else {
-    response.send('Correct Invitation Code Required.')
-  }
-})
-
-app.get('/', function(request, response){
-  response.redirect('/murmur');
-})
-
 app.post('/signin', function(request, response){  
   var user = request.body;
-
   console.log("logging in user: ", user);
   auth.login(user, function authHandler(error, authData) {
     if (error) {
@@ -75,13 +47,14 @@ app.post('/signin', function(request, response){
 
 app.post('/create', function(request, response){
   var roomnameLength = 8;
+  console.log('* * * body * * * :', request.body)
   var roomname = Math.random().toString(36).replace(/[^a-z0-9]+/g, '').substr(1, roomnameLength);
   firebase.createRoom(request, response, roomname);
 })
 
 app.post('/signup', function(request, response){
   var user = request.body;
-  
+
   console.log("creating user: ", user);
   auth.createUser(user, function(error, userData) {
     if (error) {
@@ -92,18 +65,6 @@ app.post('/signup', function(request, response){
       response.send({"loginSuccessful": true});
     }
   });
-})
-
-app.get('/user/*', function(request, response){
-  fs.readFile('client/src/home.html', function(err,data){
-    if(err){
-      console.log('error reading home.html');
-      console.log(process.cwd());
-    }else{
-      response.setHeader('Content-Type', 'text/html');
-      response.send(data);
-    }
-  })
 })
 
 app.post('/comment', function(request, response){ //request.body.url = 'newPost'
